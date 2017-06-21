@@ -11,6 +11,7 @@ module Fastlane
         params = {}
         params[:app_file] = config[:app_file]
         params[:base_url] = config[:base_url]
+        params[:logo_url] = config[:logo_url]
         params[:plist_template_path] = config[:plist_template_path]
         params[:plist_file_name] = config[:plist_file_name]
         params[:html_template_path] = config[:html_template_path]
@@ -38,6 +39,7 @@ module Fastlane
         app_info[:full_version] = version_string(app_info[:version], app_info[:build_no])
         app_info[:short_version] = version_short_string(app_info[:version], app_info[:build_no])
         app_info[:base_url] = params[:base_url]
+        app_info[:logo_url] = params[:logo_url]
 
         output_directory = "#{app_info[:short_version]}"
         if params[:output_directory]
@@ -99,6 +101,11 @@ module Fastlane
                                        description: ".apk or .ipa file for the build",
                                        optional: true,
                                        default_value: ""),
+         FastlaneCore::ConfigItem.new(key: :logo_url,
+                                      env_name: "",
+                                      description: "URL where to find logo",
+                                      optional: true,
+                                      default_value: ""),
          FastlaneCore::ConfigItem.new(key: :base_url,
                                       env_name: "",
                                       description: "Base URL where app can be downloaded",
