@@ -7,10 +7,10 @@ require 'cgi'
 module Fastlane
   module Actions
     class GenerateHtmlAction < Action
-      def self.run(params)
-        UI.message("The generate_html plugin is working!")
-
+      def self.run(config)
+        params = {}
         params[:app_file] = config[:app_file]
+        params[:base_url] = config[:base_url]
         params[:plist_template_path] = config[:plist_template_path]
         params[:plist_file_name] = config[:plist_file_name]
         params[:html_template_path] = config[:html_template_path]
@@ -24,25 +24,35 @@ module Fastlane
         UI.user_error!("No IPA or APK file path given, pass using `app_file: 'ipa/apk path'`") if app_file.to_s.length == 0
 
         file_type = File.extname(app_file).downcase
-        if file_type == "ipa"
-          app_info = get_ios_app_info(ipa_file)
+
+        UI.message("file_type = #{file_type}")
+
+        if file_type == ".ipa"
+          app_info = get_ios_app_info(app_file)
+        elsif file_type == ".apk"
+          app_info = get_android_app_info(app_file)
         else
-          app_info = get_android_app_info(apk_file)
+          UI.user_error!("Must provide either ipa or apk file in app_info parameter")
         end
 
-        app_info[:full_version] = version_string(bundle_version, build_num)
-        app_info[:short_version] = version_short_string(bundle_version, build_num)
+        app_info[:full_version] = version_string(app_info[:version], app_info[:build_no])
+        app_info[:short_version] = version_short_string(app_info[:version], app_info[:build_no])
+        app_info[:base_url] = params[:base_url]
 
         output_directory = "#{app_info[:short_version]}"
         if params[:output_directory]
           output_directory = "#{params[:output_directory]}/#{output_directory}"
         end
         app_file_base = File.basename(app_file)
+        app_info[:app_url] = app_info[:base_url] + "/" + app_file_base
 
         FileUtils.mkdir_p(output_directory)
         FileUtils.cp(app_file, output_directory)
 
         plist_file_name ||= "#{output_directory}/#{URI.escape(app_info[:name].delete(' '))}.plist"
+        plist_url = app_info[:base_url] + "/" + plist_file_name
+        app_info[:plist_url] = plist_url
+
         plist_render = render_file(params[:plist_template_path], "plist_template", app_info)
         File.open(plist_file_name, 'w') { |file| file.write(plist_render) }
 
@@ -55,7 +65,8 @@ module Fastlane
         File.open(version_file_name, 'w') { |file| file.write(version_render) }
       end
 
-      def render_file(template_file, default_template_file, app_info)
+      def self.render_file(template_file, default_template_file, app_info)
+        eth = Fastlane::Helper::GenerateHtmlHelper
         if template_file && File.exist?(template_file)
           output_template = eth.load_from_path(template_file)
         else
@@ -85,9 +96,14 @@ module Fastlane
         [
           FastlaneCore::ConfigItem.new(key: :app_file,
                                        env_name: "",
-                                       description: ".apk or .ipa file for the build ",
+                                       description: ".apk or .ipa file for the build",
                                        optional: true,
                                        default_value: ""),
+         FastlaneCore::ConfigItem.new(key: :base_url,
+                                      env_name: "",
+                                      description: "Base URL where app can be downloaded",
+                                      optional: true,
+                                      default_value: ""),
           FastlaneCore::ConfigItem.new(key: :apk,
                                        env_name: "",
                                        description: ".apk file for the build ",

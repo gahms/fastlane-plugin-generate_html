@@ -53,11 +53,11 @@
 
     <div class="oneRow">
       <span class="download" id="ios">
-        <a href="itms-services://?action=download-manifest&url=<%= plist_url %>" id="text" class="btn btn-lg btn-default" onclick="document.getElementById('finished').id = '';">
+        <a href="filledlater" id="ios-link" class="btn btn-lg btn-default" onclick="document.getElementById('finished').id = '';">
           Install <%= name %> <%= full_version %>
         </a>
         <br>
-        <p>Built on <%= Date.today.strftime('%a, %e %b %Y %H:%M %p') %></p>
+        <p>Uploaded on <%= Time.now.strftime('%e %b %Y %H:%M') %></p>
       </span>
     </div>
     <h3 id="desktop">Please open this page on your iPhone!</h3>
@@ -74,6 +74,10 @@
     if (/iPhone|iPad|iPod/i.test(navigator.userAgent))
     {
       document.getElementById("desktop").remove()
+      var itmsUrl = "itms-services://?action=download-manifest&url="
+      var plistUrl = document.baseURI.replace(/\/$/, "").replace(/\/index\.html$/, "")
+      plistUrl = plistUrl + "/mapop.plist"
+      document.getElementById("ios-link").setAttribute('href', itmsUrl + plistUrl)
     }
     else
     {
