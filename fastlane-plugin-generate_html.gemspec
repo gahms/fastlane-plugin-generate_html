@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{nih@miracle.dk}
 
   spec.summary       = %q{Generate HTML files for easy install of ipa or apk on a phone}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-generate_html"
+  spec.homepage      = "https://github.com/gahms/fastlane-plugin-generate_html"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)

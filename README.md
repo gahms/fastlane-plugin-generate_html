@@ -14,7 +14,7 @@ fastlane add_plugin generate_html
 
 Generate HTML files for easy install of ipa or apk on a phone
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+Lots of stuff here copied from https://github.com/joshdholtz/fastlane-plugin-s3
 
 ## Example
 
